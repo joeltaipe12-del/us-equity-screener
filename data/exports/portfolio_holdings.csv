@@ -1,0 +1,11 @@
+ticker_id,rank_overall,composite_score,ticker,sector,portfolio_rank
+37,1,7.80,PM,Consumer Staples,1
+39,2,7.43,GS,Financials,2
+13,2,7.43,LLY,Health Care,2
+44,4,7.17,MS,Financials,4
+5,5,7.10,GOOGL,Communication,5
+63,6,7.03,UBER,Industrials,6
+54,6,7.03,AMGN,Health Care,6
+6,8,6.97,AVGO,Information Technology,8
+74,11,6.80,MO,Consumer Staples,9
+17,12,6.77,JNJ,Health Care,10

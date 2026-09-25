@@ -1,0 +1,103 @@
+ticker_id,ticker,company_name,sector,market_cap_tier,is_benchmark
+1,NVDA,NVIDIA CORP,Information Technology,Mega Cap,f
+2,AAPL,APPLE INC,Information Technology,Mega Cap,f
+3,MSFT,MICROSOFT CORP,Information Technology,Mega Cap,f
+4,AMZN,AMAZON.COM INC,Consumer Discretionary,Mega Cap,f
+5,GOOGL,ALPHABET INC CLASS A,Communication,Mega Cap,f
+6,AVGO,BROADCOM INC,Information Technology,Mega Cap,f
+7,GOOG,ALPHABET INC CLASS C,Communication,Mega Cap,f
+8,META,META PLATFORMS INC CLASS A,Communication,Mega Cap,f
+9,TSLA,TESLA INC,Consumer Discretionary,Mega Cap,f
+10,BRK-B,BERKSHIRE HATHAWAY INC CLASS B,Financials,Mega Cap,f
+11,MU,MICRON TECHNOLOGY INC,Information Technology,Large Cap,f
+12,JPM,JPMORGAN CHASE & CO,Financials,Large Cap,f
+13,LLY,ELI LILLY,Health Care,Large Cap,f
+14,AMD,ADVANCED MICRO DEVICES INC,Information Technology,Large Cap,f
+15,XOM,EXXON MOBIL CORP,Energy,Large Cap,f
+16,WMT,WALMART INC,Consumer Staples,Large Cap,f
+17,JNJ,JOHNSON & JOHNSON,Health Care,Large Cap,f
+18,INTC,INTEL CORPORATION CORP,Information Technology,Large Cap,f
+19,V,VISA INC CLASS A,Financials,Large Cap,f
+20,COST,COSTCO WHOLESALE CORP,Consumer Staples,Large Cap,f
+21,CSCO,CISCO SYSTEMS INC,Information Technology,Large Cap,f
+22,CAT,CATERPILLAR INC,Industrials,Large Cap,f
+23,MA,MASTERCARD INC CLASS A,Financials,Large Cap,f
+24,LRCX,LAM RESEARCH CORP,Information Technology,Large Cap,f
+25,ABBV,ABBVIE INC,Health Care,Large Cap,f
+26,NFLX,NETFLIX INC,Communication,Large Cap,f
+27,UNH,UNITEDHEALTH GROUP INC,Health Care,Large Cap,f
+28,CVX,CHEVRON CORP,Energy,Large Cap,f
+29,AMAT,APPLIED MATERIAL INC,Information Technology,Large Cap,f
+30,ORCL,ORACLE CORP,Information Technology,Large Cap,f
+31,PG,PROCTER & GAMBLE,Consumer Staples,Large Cap,f
+32,BAC,BANK OF AMERICA CORP,Financials,Large Cap,f
+33,KO,COCA-COLA,Consumer Staples,Large Cap,f
+34,GE,GE AEROSPACE,Industrials,Large Cap,f
+35,PLTR,PALANTIR TECHNOLOGIES INC CLASS A,Information Technology,Large Cap,f
+36,HD,HOME DEPOT INC,Consumer Discretionary,Large Cap,f
+37,PM,PHILIP MORRIS INTERNATIONAL INC,Consumer Staples,Large Cap,f
+38,GEV,GE VERNOVA INC,Industrials,Large Cap,f
+39,GS,GOLDMAN SACHS GROUP INC,Financials,Large Cap,f
+40,MRK,MERCK & CO INC,Health Care,Large Cap,f
+41,TXN,TEXAS INSTRUMENT INC,Information Technology,Large Cap,f
+42,LIN,LINDE PLC,Materials,Large Cap,f
+43,RTX,RTX CORP,Industrials,Large Cap,f
+44,MS,MORGAN STANLEY,Financials,Large Cap,f
+45,WFC,WELLS FARGO,Financials,Large Cap,f
+46,C,CITIGROUP INC,Financials,Large Cap,f
+47,QCOM,QUALCOMM INC,Information Technology,Large Cap,f
+48,IBM,INTERNATIONAL BUSINESS MACHINES CO,Information Technology,Large Cap,f
+49,PEP,PEPSICO INC,Consumer Staples,Large Cap,f
+50,NEE,NEXTERA ENERGY INC,Utilities,Large Cap,f
+51,VZ,VERIZON COMMUNICATIONS INC,Communication,Large Cap,f
+52,MCD,MCDONALDS CORP,Consumer Discretionary,Large Cap,f
+53,DIS,WALT DISNEY,Communication,Large Cap,f
+54,AMGN,AMGEN INC,Health Care,Large Cap,f
+55,BA,BOEING,Industrials,Large Cap,f
+56,T,AT&T INC,Communication,Large Cap,f
+57,TMO,THERMO FISHER SCIENTIFIC INC,Health Care,Large Cap,f
+58,AXP,AMERICAN EXPRESS,Financials,Large Cap,f
+59,GILD,GILEAD SCIENCES INC,Health Care,Large Cap,f
+60,UNP,UNION PACIFIC CORP,Industrials,Large Cap,f
+61,BLK,BLACKROCK INC,Financials,Large Cap,f
+62,CRM,SALESFORCE INC,Information Technology,Large Cap,f
+63,UBER,UBER TECHNOLOGIES INC,Industrials,Large Cap,f
+64,ISRG,INTUITIVE SURGICAL INC,Health Care,Large Cap,f
+65,SCHW,CHARLES SCHWAB CORP,Financials,Large Cap,f
+66,ABT,ABBOTT LABORATORIES,Health Care,Large Cap,f
+67,PFE,PFIZER INC,Health Care,Large Cap,f
+68,COP,CONOCOPHILLIPS,Energy,Large Cap,f
+69,DE,DEERE,Industrials,Large Cap,f
+70,HON,HONEYWELL INTERNATIONAL INC,Industrials,Large Cap,f
+71,LOW,LOWES COMPANIES INC,Consumer Discretionary,Large Cap,f
+72,BKNG,BOOKING HOLDINGS INC,Consumer Discretionary,Large Cap,f
+73,CVS,CVS HEALTH CORP,Health Care,Large Cap,f
+74,MO,ALTRIA GROUP INC,Consumer Staples,Large Cap,f
+75,SBUX,STARBUCKS CORP,Consumer Discretionary,Large Cap,f
+76,COF,CAPITAL ONE FINANCIAL CORP,Financials,Large Cap,f
+77,BMY,BRISTOL MYERS SQUIBB,Health Care,Large Cap,f
+78,LMT,LOCKHEED MARTIN CORP,Industrials,Large Cap,f
+79,INTU,INTUIT INC,Information Technology,Large Cap,f
+80,DHR,DANAHER CORP,Health Care,Large Cap,f
+81,SO,SOUTHERN,Utilities,Large Cap,f
+82,ACN,ACCENTURE PLC CLASS A,Information Technology,Large Cap,f
+83,MDT,MEDTRONIC PLC,Health Care,Large Cap,f
+84,ADBE,ADOBE INC,Information Technology,Large Cap,f
+85,DUK,DUKE ENERGY CORP,Utilities,Large Cap,f
+86,NOW,SERVICENOW INC,Information Technology,Large Cap,f
+87,BK,BANK OF NEW YORK MELLON CORP,Financials,Large Cap,f
+88,CMCSA,COMCAST CORP CLASS A,Communication,Large Cap,f
+89,TMUS,T MOBILE US INC,Communication,Large Cap,f
+90,GD,GENERAL DYNAMICS CORP,Industrials,Large Cap,f
+91,USB,US BANCORP,Financials,Large Cap,f
+92,FDX,FEDEX CORP,Industrials,Large Cap,f
+93,AMT,AMERICAN TOWER REIT CORP,Real Estate,Large Cap,f
+94,MDLZ,MONDELEZ INTERNATIONAL INC CLASS A,Consumer Staples,Large Cap,f
+95,EMR,EMERSON ELECTRIC,Industrials,Large Cap,f
+96,MMM,3M,Industrials,Large Cap,f
+97,UPS,UNITED PARCEL SERVICE INC CLASS B,Industrials,Large Cap,f
+98,CL,COLGATE-PALMOLIVE,Consumer Staples,Large Cap,f
+99,GM,GENERAL MOTORS,Consumer Discretionary,Large Cap,f
+100,SPG,SIMON PROPERTY GROUP REIT INC,Real Estate,Large Cap,f
+101,NKE,NIKE INC CLASS B,Consumer Discretionary,Large Cap,f
+102,SPY,SPDR S&P 500 ETF,Benchmark ,Benchmark,t

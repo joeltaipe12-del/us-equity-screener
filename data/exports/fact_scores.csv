@@ -1,0 +1,102 @@
+ticker_id,ticker,sector,value_score,quality_score,momentum_score,risk_score,composite_score,rank_overall,growth_score
+37,PM,Consumer Staples,7.00,9.00,8.00,8.00,7.80,1,7.00
+5,GOOGL,Communication,4.50,6.00,10.00,6.00,7.10,5,9.00
+54,AMGN,Health Care,4.50,8.67,7.00,7.00,7.03,6,8.00
+63,UBER,Industrials,6.50,6.67,8.00,4.00,7.03,6,10.00
+6,AVGO,Information Technology,1.50,6.33,9.00,8.00,6.97,8,10.00
+38,GEV,Industrials,2.50,5.33,10.00,10.00,6.97,8,7.00
+7,GOOG,Communication,4.50,6.00,9.00,6.00,6.90,10,9.00
+74,MO,Consumer Staples,10.00,10.00,6.00,6.00,6.80,11,2.00
+12,JPM,Financials,8.50,4.33,8.00,4.00,6.77,12,9.00
+17,JNJ,Health Care,6.50,6.33,9.00,6.00,6.77,12,6.00
+34,GE,Industrials,2.00,6.67,10.00,6.00,6.73,14,9.00
+46,C,Financials,9.50,3.33,10.00,5.50,6.67,15,5.00
+22,CAT,Industrials,3.50,8.00,9.00,7.50,6.60,16,5.00
+48,IBM,Information Technology,5.00,6.67,8.00,9.00,6.53,17,4.00
+58,AXP,Financials,5.50,5.67,7.00,6.50,6.53,17,8.00
+72,BKNG,Consumer Discretionary,4.00,9.00,4.00,5.50,6.50,19,10.00
+8,META,Communication,5.00,6.00,6.00,5.00,6.40,20,10.00
+59,GILD,Health Care,6.50,8.00,8.00,5.50,6.40,20,4.00
+87,BK,Financials,9.00,3.00,9.00,5.00,6.40,20,6.00
+35,PLTR,Information Technology,1.00,5.33,10.00,5.50,6.37,23,10.00
+1,NVDA,Information Technology,1.50,7.00,8.00,5.00,6.30,24,10.00
+90,GD,Industrials,7.00,4.00,7.00,5.50,6.30,24,8.00
+30,ORCL,Information Technology,1.50,8.00,6.00,8.00,6.30,24,8.00
+11,MU,Information Technology,4.50,4.33,10.00,6.50,6.27,27,6.00
+56,T,Communication,10.00,5.33,6.00,6.50,6.17,28,3.00
+73,CVS,Health Care,5.50,2.67,10.00,5.50,6.13,29,7.00
+40,MRK,Health Care,8.00,7.33,5.00,6.00,6.07,30,4.00
+99,GM,Consumer Discretionary,8.00,3.67,9.00,3.50,6.03,31,6.00
+14,AMD,Information Technology,3.50,2.00,10.00,5.50,6.00,32,9.00
+32,BAC,Financials,10.00,3.33,7.00,3.50,5.97,33,6.00
+100,SPG,Real Estate,6.50,9.00,5.00,3.00,5.90,34,6.00
+3,MSFT,Information Technology,3.00,5.33,6.00,6.00,5.87,35,9.00
+76,COF,Financials,5.50,1.67,8.00,5.00,5.83,36,9.00
+23,MA,Financials,2.00,9.67,4.00,4.50,5.83,36,9.00
+33,KO,Consumer Staples,5.50,7.67,6.00,6.00,5.83,36,4.00
+29,AMAT,Information Technology,4.00,6.00,9.00,6.00,5.80,39,4.00
+91,USB,Financials,10.00,3.33,6.00,3.50,5.77,40,6.00
+10,BRK-B,Financials,,2.33,5.00,5.50,5.71,41,10.00
+52,MCD,Consumer Discretionary,6.00,8.00,4.00,5.50,5.70,42,5.00
+45,WFC,Financials,9.00,3.33,8.00,3.00,5.67,43,5.00
+65,SCHW,Financials,7.00,3.33,8.00,3.50,5.37,53,5.00
+39,GS,Financials,9.00,4.67,9.00,7.50,7.43,2,7.00
+13,LLY,Health Care,1.50,8.67,8.00,9.00,7.43,2,10.00
+44,MS,Financials,8.50,5.33,9.00,6.00,7.17,4,7.00
+24,LRCX,Information Technology,1.50,7.33,10.00,6.50,5.67,43,3.00
+43,RTX,Industrials,5.00,3.00,9.00,4.00,5.60,45,7.00
+16,WMT,Consumer Staples,3.00,5.00,7.00,7.00,5.60,45,6.00
+19,V,Financials,2.50,7.67,5.00,4.50,5.53,47,8.00
+50,NEE,Utilities,7.00,4.33,6.00,3.00,5.47,48,7.00
+26,NFLX,Communication,3.00,7.33,3.00,5.00,5.47,48,9.00
+78,LMT,Industrials,4.50,8.67,3.00,6.00,5.43,50,5.00
+95,EMR,Industrials,5.50,3.67,4.00,7.00,5.43,50,7.00
+85,DUK,Utilities,8.50,4.00,5.00,5.50,5.40,52,4.00
+55,BA,Industrials,1.00,6.67,7.00,4.00,5.33,54,8.00
+89,TMUS,Communication,7.50,6.00,2.00,7.00,5.30,55,4.00
+77,BMY,Health Care,7.50,7.67,3.00,5.00,5.23,56,3.00
+79,INTU,Information Technology,3.00,4.67,4.00,5.50,5.23,56,9.00
+64,ISRG,Health Care,1.00,,4.00,5.50,5.13,58,10.00
+53,DIS,Communication,9.00,3.00,3.00,5.50,5.10,59,5.00
+4,AMZN,Consumer Discretionary,5.00,5.00,3.00,4.50,5.10,59,8.00
+21,CSCO,Information Technology,5.00,5.00,7.00,4.50,5.10,59,4.00
+83,MDT,Health Care,7.00,3.33,7.00,5.00,5.07,62,3.00
+84,ADBE,Information Technology,5.50,7.67,1.00,3.00,5.03,63,8.00
+96,MMM,Industrials,3.50,8.33,7.00,4.00,4.97,64,2.00
+94,MDLZ,Consumer Staples,6.50,3.67,2.00,5.50,4.93,65,7.00
+27,UNH,Health Care,6.50,3.67,1.00,5.50,4.93,65,8.00
+2,AAPL,Information Technology,2.00,9.00,4.00,6.50,4.90,67,3.00
+51,VZ,Communication,9.50,5.00,4.00,4.00,4.90,67,2.00
+60,UNP,Industrials,6.50,7.67,3.00,5.00,4.83,69,2.00
+28,CVX,Energy,8.50,2.00,5.00,7.50,4.80,70,1.00
+71,LOW,Consumer Discretionary,8.00,8.00,2.00,5.00,4.80,70,1.00
+88,CMCSA,Communication,10.00,5.33,1.00,4.50,4.77,72,3.00
+49,PEP,Consumer Staples,5.00,7.67,2.00,5.00,4.73,73,4.00
+69,DE,Industrials,6.00,6.00,5.00,5.50,4.70,74,1.00
+47,QCOM,Information Technology,3.50,6.00,6.00,6.00,4.70,74,2.00
+57,TMO,Health Care,5.50,4.00,5.00,7.00,4.70,74,2.00
+61,BLK,Financials,6.00,2.00,4.00,3.50,4.70,74,8.00
+81,SO,Utilities,7.50,4.33,4.00,5.50,4.67,78,2.00
+82,ACN,Information Technology,6.50,5.33,1.00,5.50,4.67,78,5.00
+41,TXN,Information Technology,3.50,7.33,2.00,9.00,4.57,80,1.00
+18,INTC,Information Technology,,1.67,10.00,5.50,4.54,81,1.00
+98,CL,Consumer Staples,2.50,9.33,1.00,4.50,4.47,82,5.00
+15,XOM,Energy,8.50,2.67,6.00,4.00,4.43,83,1.00
+86,NOW,Information Technology,2.00,3.67,1.00,5.50,4.43,83,10.00
+66,ABT,Health Care,5.50,3.67,5.00,5.50,4.33,85,2.00
+97,UPS,Industrials,7.50,7.00,1.00,5.00,4.30,86,1.00
+20,COST,Consumer Staples,2.50,5.00,2.00,6.00,4.30,86,6.00
+62,CRM,Information Technology,5.00,3.33,1.00,5.00,4.27,88,7.00
+31,PG,Consumer Staples,6.00,6.33,1.00,5.00,4.27,88,3.00
+42,LIN,Materials,5.50,5.33,3.00,5.50,4.27,88,2.00
+36,HD,Consumer Discretionary,3.50,9.33,1.00,4.50,4.27,88,3.00
+68,COP,Energy,9.50,3.67,2.00,5.00,4.23,92,1.00
+25,ABBV,Health Care,1.00,2.00,7.00,8.00,4.20,93,3.00
+70,HON,Industrials,4.50,7.00,2.00,4.50,4.20,93,3.00
+92,FDX,Industrials,8.50,4.67,3.00,3.50,4.13,95,1.00
+75,SBUX,Consumer Discretionary,2.00,4.00,2.00,7.00,4.00,96,5.00
+93,AMT,Real Estate,3.00,7.33,2.00,3.50,3.97,97,4.00
+9,TSLA,Consumer Discretionary,1.50,1.33,5.00,5.50,3.87,98,6.00
+101,NKE,Consumer Discretionary,5.00,6.33,1.00,4.50,3.77,99,2.00
+67,PFE,Health Care,8.50,3.00,3.00,1.50,3.40,100,1.00
+80,DHR,Health Care,5.00,2.33,3.00,4.00,3.07,101,1.00
