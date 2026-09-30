@@ -247,8 +247,6 @@ They're being compared as if they're the same period.
 
 ## What's wrong with it
 
-I'd rather say this myself than have someone find it.
-
 - **Look-ahead bias.** The factor scores use data through the end of 2025 and
   are applied from the start of 2020. In 2020 I could not have known any of
   it. This is the dominant flaw and it isn't fixable without point-in-time
