@@ -28,26 +28,6 @@ biggest US companies on all five, bought the best ten, and saw what happened.
 If you rank the largest US companies on five measurable traits and buy the top
 ten, would you have beaten the market?
 
-## Executive Summary
-
-A five-factor screener over the S&P 100 produced a top-ten portfolio
-returning +317% against the index's +131% over 2020–2025, with lower
-volatility and half the drawdown.
-
-The benchmark's figures match the real S&P 500, confirming the
-calculation chain is correct.
-
-The strategy result is not, however, evidence that the strategy works.
-Factor scores were computed using data through the end of the test period and
-applied from the start of it, the universe contains only companies that
-survived to the present, and the risk factor is scored on the same window it
-is measured over.
-
-What the project demonstrates is a working, reproducible analytics pipeline —
-extraction, validation, dimensional modelling, window-function analytics,
-backtesting and visualisation — together with the judgement to identify why
-its own headline result should not be believed.
-
 ## The five factors
 
 Each factor is scored 1–10 using `NTILE(10)`, which splits the universe into
@@ -56,16 +36,16 @@ deciles. A score is a rank relative to the S&P 100, not an absolute judgement
 
 | Factor | What I measured | Scores high when |
 |---|---|---|
-| Value | The P/E decile and the P/B decile, averaged | Cheap |
+| Value | P/E decile and P/B decile, averaged | Cheap |
 | Quality | Return on equity | Profitable on shareholder capital |
 | Momentum | Rolling 12-month return | Rising |
-| Risk | Trailing 12-month volatility | Steady |
+| Risk | 12-month volatility decile and max drawdown decile, averaged | Steady |
 | Growth | Revenue CAGR | Growing sales |
 
-Two of the five sort the other way — low P/E and low volatility are the good
-ends. Getting one backwards gives you a ranking that looks completely
-plausible and is completely wrong. That happened to me: the risk score was
-sorted the wrong way until I caught it and changed it to `DESC`.
+Several of these sort the other way round — low P/E, low volatility and a
+shallow drawdown are the good ends. Getting one backwards gives you a ranking
+that looks completely plausible and is completely wrong. That happened to me:
+the volatility sort was the wrong way until I caught it.
 
 The composite is the plain average of the five, then `RANK()` descending.
 **Equal weights on purpose.** There's nothing in this data that says one factor
@@ -104,23 +84,17 @@ That's deliberate. If you clean the data as you load it, you can't see what
 you actually received. You want to find out what's wrong with it *after* it's
 in the database, where you can query it, not before, where you're guessing.
 
-Then I ran nine checks:
-
-- Did I get the number of rows I expected?
-- Does every company have a full price history?
-- Are the fiscal years consistent?
-- Do my tables agree with each other?
-- Do the date ranges make sense?
-- Are there nulls?
-- Are there impossible values?
-- Are there anomalies in the monthly returns?
+Then I ran nine checks: row counts, price coverage, fiscal-year consistency,
+cross-table agreement, date ranges, nulls, impossible values and outlier
+returns.
 
 ### 3. What the checks found
 
 **Short price histories.** GE Vernova had 22 months and Palantir had 64,
 instead of the full period. Both joined the index recently. If you average a
-22-month return against a 72-month one, the comparison is meaningless, so this
-has to be accounted for rather than ignored.
+22-month return against a 72-month one, the comparison is meaningless — so
+these are excluded at the portfolio stage rather than silently averaged in
+(see step 7).
 
 **Negative equity.** 28 rows across 9 companies: Philip Morris, Altria,
 McDonald's, Starbucks, Boeing, Booking, Oracle, AbbVie and Lowe's. Equity is
@@ -136,6 +110,29 @@ book equity near zero, so the ratio explodes.
 None of these were bugs. They're real properties of real companies, and they
 quietly corrupt the scores if you don't catch them. Finding them is what the
 checks were for.
+
+The fix is a guard on every ratio, so a broken input produces `NULL` rather
+than a plausible-looking wrong number:
+
+```sql
+-- 07_3_fact_ratios.sql (excerpt)
+case when
+	fl.eps > 0 then pl.close_price / fl.eps
+	else null end as pe_ratio,
+case when
+	fl.total_equity > 0 then (fl.net_income / fl.total_equity)
+	else null
+	end as roe,
+case when
+	fl.total_equity > 0 and fl.eps > 0 and fl.net_income > 0
+    then (pl.close_price * fl.net_income) / (fl.total_equity * fl.eps)
+    else null
+	end as pb_ratio
+```
+
+P/B has no book-value-per-share column to work from, so it's derived:
+price × net income over equity × EPS gives the same ratio out of the columns I
+actually had.
 
 ### 4. The star schema
 
@@ -155,29 +152,252 @@ joins clean and makes referencing different parts of the model easier.
 ### 5. Turning prices into signals
 
 This is where the window functions come in — what the prices actually tell
-you:
+you.
 
-- **Monthly return** — `LAG()` to compare each month to the one before
-- **Rolling 12-month return** — the momentum input
-- **12-month volatility** — the risk input
-- **Drawdown** — how far below the previous peak, using a running `MAX()`
+**Monthly return** — each month compared to the one before, using `LAG()`:
 
-These four are the raw material the scoring runs on.
+```sql
+-- 06_1_monthly_return.sql
+with returns as (
+select
+	ticker_id,
+	date_id,
+	(fp.close_price/ lag(fp.close_price) over(partition by ticker_id order by date_id)) - 1 as
+	new_returns
+	from fact_prices fp
+)
+update fact_prices fp
+set monthly_turn = r.new_returns
+from returns r
+where fp.ticker_id = r.ticker_id
+and fp.date_id = r.date_id;
+```
+
+**Drawdown** — how far below the previous peak. This compounds the returns
+with a log-sum (adding logs is the same as multiplying the returns, and it
+doesn't drift), tracks the running peak with `MAX()`, then measures the gap:
+
+```sql
+-- 06_4_drawdown.sql
+with cumulative as (
+		select
+			ticker_id,
+			date_id ,
+			exp(sum(ln(monthly_turn + 1)) over (
+				partition by ticker_id
+				order by date_id
+			 	ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT row
+		)) as cum_return
+	from fact_prices fp
+	where monthly_turn is not null
+),
+peak as (
+	select
+			ticker_id,
+			date_id,
+			cum_return,
+			max(cum_return) over (
+				partition by ticker_id
+				order by date_id
+			 	ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT row
+			 ) as running_peak
+			from cumulative
+),
+dd as (
+	select
+        ticker_id,
+        date_id,
+        (cum_return / running_peak) - 1 AS new_drawdown
+    FROM peak
+)
+UPDATE fact_prices fp
+SET drawdown = dd.new_drawdown
+FROM dd
+WHERE fp.ticker_id = dd.ticker_id
+  AND fp.date_id = dd.date_id;
+```
+
+Rolling 12-month return and 12-month volatility follow the same pattern and
+feed momentum and risk.
 
 ### 6. Scoring and ranking
 
-`NTILE(10)` on each measure to rank every company out of 10, for all five
-factors. Then the composite — the average of the five, equal weighted — and
-`RANK()` to order them.
+`NTILE(10)` on each measure to rank every company out of 10.
 
-### 7. The backtest
+The risk score is the one worth showing, because it combines two measures and
+both have to sort the right way — volatility `DESC` so the calmest companies
+land in decile 10, drawdown `ASC` on the minimum so the shallowest land in
+decile 10:
 
-Take the top ten holdings, get their monthly returns, compound them, and
-calculate the metrics: total return, annualised return, volatility, Sharpe
-ratio and max drawdown. Then run SPY through **exactly the same code** and
-compare.
+```sql
+-- 08_5_risk_score.sql
+with vol_deciles as (
+	select
+		fp.ticker_id,
+		ntile(10) OVER (ORDER BY fp.volatility_12m DESC) AS vol_decile
+   	 FROM fact_prices fp
+    	JOIN dim_company dc ON fp.ticker_id = dc.ticker_id
+    	WHERE fp.date_id = (SELECT MAX(date_id) FROM fact_prices)
+      	AND dc.is_benchmark = FALSE
+      	AND fp.volatility_12m IS NOT null
+),
+max_dd as (
+	select
+		fp.ticker_id,
+		min(fp.drawdown) as max_drawdown
+	from fact_prices fp
+	join dim_company dc
+	on fp.ticker_id = dc.ticker_id
+	where dc.is_benchmark = false
+	and fp.drawdown is not null
+	group by fp.ticker_id
+),
+dd_deciles as (
+	select ticker_id,
+	ntile(10) over (order by max_drawdown asc ) as dd_decile
+	from max_dd
+),
+risk as (
+    SELECT v.ticker_id,
+           (SELECT AVG(d) FROM unnest(ARRAY[v.vol_decile, dd.dd_decile]) AS d) AS risk_score
+    FROM vol_deciles v
+    LEFT JOIN dd_deciles dd ON v.ticker_id = dd.ticker_id
+)
+UPDATE fact_scores s
+SET risk_score = r.risk_score
+FROM risk r
+WHERE s.ticker_id = r.ticker_id;
+```
 
-### 8. The dashboard
+Growth needed building from scratch — there's no CAGR column, so it comes out
+of first and last revenue and the number of years between them. Then the
+composite and the rank:
+
+```sql
+-- 08_7_growth_score_and_composite.sql (excerpt)
+cagr as (
+    select ticker_id,
+           power(last_revenue / first_revenue, 1.0 / years) - 1 as revenue_cagr
+    from rev
+    where years > 0
+),
+growth_deciles as (
+    select ticker_id,
+           ntile(10) over (order by revenue_cagr asc) as growth_decile
+    from cagr
+)
+update fact_scores s
+set growth_score = g.growth_decile
+from growth_deciles g
+where s.ticker_id = g.ticker_id;
+
+UPDATE fact_scores
+SET composite_score = (
+    SELECT AVG(d)
+    FROM unnest(ARRAY[value_score, quality_score, momentum_score,
+                      risk_score, growth_score]) AS d
+);
+
+WITH ranked AS (
+    SELECT ticker_id,
+           RANK() OVER (ORDER BY composite_score DESC NULLS LAST) AS rnk
+    FROM fact_scores
+)
+UPDATE fact_scores s
+SET rank_overall = r.rnk
+FROM ranked r
+WHERE s.ticker_id = r.ticker_id;
+```
+
+`AVG` over `unnest` ignores nulls, so a company whose P/B or ROE came out null
+is averaged over the factors it does have rather than being knocked out
+entirely. That's a choice, not an accident — but it does mean a handful of
+companies are ranked on four factors while everyone else is ranked on five.
+
+### 7. Picking the portfolio
+
+The top ten by composite — but with two eligibility rules first, which is
+where the data-quality findings actually get used:
+
+```sql
+-- 09_1_portfolio_holdings.sql
+with history as (
+	select ticker_id,
+	count(monthly_turn) as month_of_return
+from fact_prices
+group by ticker_id
+),
+eligible as (
+	select s.ticker_id ,
+	s.ticker,
+	s.composite_score,
+	s.rank_overall,
+	s.sector
+from fact_scores s
+	join history h
+	on s.ticker_id = h.ticker_id
+	where h.month_of_return >= 71
+	and s.ticker <> 'GOOG'
+	and s.composite_score is not null
+)
+select ticker_id,
+	   rank_overall,
+	   composite_score,
+	   ticker,
+	   sector,
+	   rank() over (order by composite_score desc ) as portfolio_rank
+	from eligible
+	order by composite_score desc
+	limit 10;
+```
+
+`month_of_return >= 71` is what keeps GE Vernova and Palantir out — you can't
+compare a 22-month track record to a 72-month one. `ticker <> 'GOOG'` stops
+the portfolio holding the same company twice through two share classes.
+
+### 8. The backtest
+
+Compound the monthly portfolio return and the SPY return the same way, and
+index both to 100 so they're comparable on one axis:
+
+```sql
+-- 09_3_cumulative_returns.sql
+create table portfolio_cumulative as(
+	select date,
+		   date_id,
+		   year_month,
+		   portfolio_returns ,
+		   spy_return,
+		   exp(sum(ln(1 + portfolio_returns )) over w) as portfolio_value,
+		   exp(sum(ln(1 + pmi.spy_return)) over w ) as spy_value,
+		   100 * exp(sum(ln(1+ portfolio_returns)) over w ) as portfolio_index,
+		   100 * exp(sum(ln(1 + pmi.spy_return)) over w) as spy_index
+	from portfolio_monthly_returns pmi
+	window w as (order by date_id rows between unbounded preceding and current row ));
+```
+
+Then the metrics — annualised return, annualised volatility, Sharpe and max
+drawdown, calculated for both in the same query so neither gets special
+treatment:
+
+```sql
+-- 09_4_performance_metrics.sql (excerpt)
+SELECT
+    ROUND((POWER(f.portfolio_value, 12.0 / s.n_months) - 1)::numeric, 4) AS port_ann_return,
+    ROUND((POWER(f.spy_value,       12.0 / s.n_months) - 1)::numeric, 4) AS spy_ann_return,
+    ROUND((s.port_sd * SQRT(12))::numeric, 4)                            AS port_ann_vol,
+    ROUND((s.spy_sd  * SQRT(12))::numeric, 4)                            AS spy_ann_vol,
+    ROUND(((POWER(f.portfolio_value, 12.0/s.n_months) - 1)
+           / (s.port_sd * SQRT(12)))::numeric, 2)                        AS port_sharpe,
+    ROUND((SELECT MIN(port_dd) FROM dd)::numeric, 4)                     AS port_max_dd,
+    ROUND((SELECT MIN(spy_dd)  FROM dd)::numeric, 4)                     AS spy_max_dd
+FROM spread s, final f;
+```
+
+Monthly standard deviation is annualised by `SQRT(12)`, and the monthly value
+is annualised by raising it to `12 / n_months`.
+
+### 9. The dashboard
 
 Three pages in Tableau:
 
@@ -190,6 +410,16 @@ Three pages in Tableau:
   all four move together.
 - **Backtest** — the portfolio line against the index, five KPI cards, and the
   top-ten table.
+
+Two calculated fields do the work on the Company Detail page:
+
+```
+Latest Close
+IF [Date] = { FIXED [Ticker] : MAX([Date]) } THEN [Close Price] END
+
+Ticker Filter
+[Ticker] = [Selected Ticker]
+```
 
 ---
 
@@ -208,10 +438,10 @@ Held static 2020–2025, equal weighted, rebalanced monthly.
 
 **The SPY column is the point.** It runs through the same loading, the same
 return calculation, the same compounding chain and the same metric formulas as
-the portfolio. Its numbers match the real index, including the −24% drawdown
-in 2022. If my compounding were wrong, or the returns misaligned, or the
-drawdown logic faulty, the benchmark would be wrong too. It isn't. So the
-chain is correct.
+the portfolio — the queries above compute both columns side by side. Its
+numbers match the real index, including the −24% drawdown in 2022. If my
+compounding were wrong, or the returns misaligned, or the drawdown logic
+faulty, the benchmark would be wrong too. It isn't. So the chain is correct.
 
 That answers one question — is the code right? — and it does not answer the
 other one.
@@ -226,9 +456,10 @@ visible, which is more useful than a chart that hides it.
 
 **Ten stocks were less volatile than five hundred.** That should be
 suspicious, and it is. The risk factor picked defensives — PM, MO, JNJ, AMGN,
-LLY — but it picked them using volatility measured over the same window the
-backtest runs on. It's circular. This is the most contaminated of the five
-factors and it's the one driving the headline risk numbers.
+LLY — but it picked them using volatility *and drawdown* measured over the
+same window the backtest runs on. It's circular twice over. This is the most
+contaminated of the five factors and it's the one driving the headline risk
+numbers.
 
 **The composite hides opposites.** Two companies can land on the same
 composite for completely different reasons. Lilly scores 10 on growth and 1.5
@@ -256,14 +487,19 @@ I'd rather say this myself than have someone find it.
 - **Survivorship bias.** The universe is today's S&P 100. Companies that
   dropped out of the index over the period aren't in it, so the sample is
   already the winners.
-- **Circular risk scoring.** As above — the risk factor is scored on the same
-  window it's tested over.
+- **Circular risk scoring.** Both halves of the risk factor are measured over
+  the same window they're tested on.
+- **Static holdings.** The ten are picked once and held for the whole period.
+  Weights are rebalanced monthly but the screen never re-runs, so this tests
+  one ranking rather than a repeatable process.
 - **Drawdown understated at the start.** `portfolio_cumulative` begins at the
   first month that has a return, so the opening level of 1.0 is never a peak
   and the March 2020 COVID drawdown comes out shallower than it was. It
   doesn't change the answer here because the 2022 drawdown was deeper anyway.
 - **Sharpe uses a zero risk-free rate,** so both Sharpe figures are upper
   bounds.
+- **Uneven factor coverage.** Companies with a null ratio are scored on four
+  factors rather than five.
 
 So: the pipeline works and the result is not evidence that the strategy works.
 What this project demonstrates is the pipeline — extraction, validation,
@@ -280,10 +516,10 @@ volatile companies, and the output looked perfectly reasonable.
 up as a filter action first. It didn't work, and the drawdown chart broke. The
 reason is that **filters in Tableau are scoped to a single data source, while
 parameters are global to the whole workbook** — the two pages sit on different
-data sources, so a filter could never reach across. The fix was a `Selected
-Ticker` string parameter plus a calculated field `[Ticker] = [Selected
-Ticker]` on the Company Detail sheets, driven by a Change Parameter action.
-Because the parameter is workbook-global, it reaches where the filter couldn't.
+data sources, so a filter could never reach across. The fix was the `Selected
+Ticker` parameter and the `Ticker Filter` calculated field above, driven by a
+Change Parameter action. Because the parameter is workbook-global, it reaches
+where the filter couldn't.
 
 **Tableau Public only accepts extracts.** I had to convert the live
 connections to `.hyper` extracts before it would publish. The extracts then
@@ -344,18 +580,18 @@ Tableau: `dim_company.csv`, `dim_date.csv`, `fact_prices.csv`,
 |---|---|
 | `06_1_monthly_return.sql` | Monthly returns using `LAG()` |
 | `06_2_rolling_12m_return.sql` | The momentum input |
-| `06_3_volatility_12m.sql` | The risk input |
-| `06_4_drawdown.sql` | Underwater curve using a running `MAX()` |
+| `06_3_volatility_12m.sql` | Half the risk input |
+| `06_4_drawdown.sql` | Underwater curve — log-sum compounding and a running `MAX()` |
 | `07_1_latest_fundamentals.sql` | Most recent fiscal year per company |
 | `07_2_latest_price.sql` | Latest close per company |
-| `07_3_fact_ratios.sql` | P/E, P/B, ROE, revenue CAGR |
+| `07_3_fact_ratios.sql` | P/E, P/B, ROE, ROA, D/E — all guarded against negative equity |
 | `08_1_fact_scores_table.sql` | Creates the scores table |
 | `08_2_value_score.sql` | P/E and P/B deciles, averaged |
 | `08_3_quality_score.sql` | ROE decile |
 | `08_4_momentum_score.sql` | 12-month return decile |
-| `08_5_risk_score.sql` | Volatility decile, `DESC` so low vol scores high |
-| `08_7_growth_score_and_composite.sql` | Revenue CAGR decile, then the final composite and `RANK()` |
-| `09_1_portfolio_holdings.sql` | The top ten |
+| `08_5_risk_score.sql` | Volatility and drawdown deciles, averaged |
+| `08_7_growth_score_and_composite.sql` | Revenue CAGR decile, then the composite and `RANK()` |
+| `09_1_portfolio_holdings.sql` | Top ten, after the 71-month and duplicate-ticker filters |
 | `09_2_portfolio_monthly_returns.sql` | Equal-weighted monthly portfolio return |
 | `09_3_cumulative_returns.sql` | Growth-of-100 chain for portfolio and SPY |
 | `09_4_performance_metrics.sql` | CAGR, volatility, Sharpe, max drawdown |
