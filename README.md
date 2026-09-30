@@ -73,6 +73,67 @@ two things each:
 - **Fundamentals** — four years of annual accounts: revenue, earnings, equity,
   debt, assets
 
+I tested the whole thing on five tickers before running all 101, and checked
+what Yahoo actually returns for one company before trusting the schema for the
+rest. The fundamentals pull loops company by company, because the income
+statement and balance sheet come back separately and have to be stitched:
+
+```python
+# 01_data_pull.ipynb
+fundamentals_list = []
+failed = []
+
+for ticker in all_tickers:
+    try:
+        t = yf.Ticker(ticker)
+        income = t.financials.T
+        balance = t.balance_sheet.T
+
+        # combine income statement and balance sheet side by side
+        df = pd.concat([income, balance], axis=1)
+
+        # tag with the ticker and year
+        df["ticker"] = ticker
+        df["fiscal_year"] = df.index.year
+
+        fundamentals_list.append(df)
+        time.sleep(0.5)
+
+    except Exception as e:
+        failed.append((ticker, str(e)))
+
+print(f"Successful: {len(fundamentals_list)} tickers")
+print(f"Failed: {len(failed)} tickers")
+```
+
+The `try/except` and the `failed` list matter — one company returning nothing
+shouldn't kill a run that takes several minutes, and I want to know which ones
+dropped out rather than find a gap later. `time.sleep(0.5)` is there because
+this is a free API and hammering it gets you throttled.
+
+Yahoo's column names aren't stable either, so I map them to my own names and
+check which ones actually came back rather than assuming:
+
+```python
+column_map = {
+    "Total Revenue":        "revenue",
+    "Net Income":           "net_income",
+    "Total Assets":         "total_assets",
+    "Stockholders Equity":  "total_equity",
+    "Total Debt":           "total_debt",
+    "Diluted EPS":          "eps",
+}
+
+# keep only columns that actually exist in the raw data
+available = [col for col in column_map if col in fundamentals_raw.columns]
+missing   = [col for col in column_map if col not in fundamentals_raw.columns]
+```
+
+That's the same idea the SQL staging layer runs on — find out what you
+actually received before you start cleaning it. The Python counts nulls and
+reports the tickers with the fewest years of data before anything gets
+dropped, and only rows where *every* financial field is null are removed.
+
 That comes out as raw CSVs, which then go into PostgreSQL.
 
 ### 2. Staging, and loading the data dirty
